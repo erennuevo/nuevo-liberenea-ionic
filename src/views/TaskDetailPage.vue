@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useTaskStore } from "../stores/taskStore.js";
 import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, onIonViewWillEnter, IonTitle } from '@ionic/vue';

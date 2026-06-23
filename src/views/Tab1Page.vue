@@ -1,19 +1,20 @@
 <script setup>
 import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useTaskStore } from "../stores/taskStore.js";
-import { IonPage, IonItem, IonList, IonButton, IonContent, 
-         IonFabButton, IonIcon, IonHeader, IonInput, IonCheckbox, IonFab } from '@ionic/vue';
+import { IonPage, IonItem, IonList, IonContent, IonChip, IonText,
+         IonFabButton, IonIcon, IonHeader, IonInput, IonCheckbox,
+         IonToolbar, IonTitle } from '@ionic/vue';
 import { add, trashOutline } from 'ionicons/icons';
 
+const router = useRouter();
 const taskStore = useTaskStore();
 const { tasks, doneCount, pendingCount, totalCount } = storeToRefs(taskStore);
 const { addTask, toggleTask, removeTask } = taskStore;
-const route = useRoute();
 
 const newTaskName = ref("");
-const router = useRouter();
+const filter = ref('all');
 
 const goToDetail = (id) => {
   router.push(`/tabs/tasks/${id}`)
@@ -24,9 +25,10 @@ function handleAdd() {
   newTaskName.value = "";
 }
 
-// Read route.query.error — if it equals 'notfound', show a warning banner
-const showErrorBanner = computed(() => {
-  return route.query.error === "notfound";
+const filteredTasks = computed(() => {
+  if (filter.value === 'done') return tasks.value.filter(t => t.done);
+  if (filter.value === 'pending') return tasks.value.filter(t => !t.done);
+  return tasks.value;
 });
 </script>
 
@@ -34,18 +36,22 @@ const showErrorBanner = computed(() => {
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>📝 My Tasks</ion-title>
+        <ion-title>My Tasks</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content>
-      <ion-item class="error-banner" v-if="showErrorBanner">
-        ⚠️ Task not found. Redirected back to home.
-      </ion-item>
-
-      <ion-card style="padding: 10px">
-        Done: {{ doneCount }} | Pending: {{ pendingCount }} | Total: {{ totalCount }}
-      </ion-card>
+      <div style="margin: 18px;">
+        <ion-chip color="success" @click="filter = 'done'">
+          Done ({{ doneCount }})
+        </ion-chip>
+        <ion-chip color="warning" @click="filter = 'pending'">
+          Pending ({{ pendingCount }})
+        </ion-chip>
+        <ion-chip color="primary" @click="filter = 'all'">
+          Total ({{ totalCount }})
+        </ion-chip>
+      </div>
 
       <ion-item>
         <ion-input
@@ -60,12 +66,14 @@ const showErrorBanner = computed(() => {
         </ion-fab-button>
       </ion-item>
 
-      <ion-item v-if="tasks.length === 0">
-        There are currently no tasks.
-      </ion-item>
+      <div v-if="tasks.length === 0" class="ion-padding ion-text-center">
+        <ion-text color="medium">
+          <p>There are currently no tasks.</p>
+        </ion-text>
+      </div>
 
       <ion-list>
-        <div v-for="task in tasks" :key="task.id" class="task-item">
+        <div v-for="task in filteredTasks" :key="task.id" class="task-item">
           <ion-checkbox
             v-model="task.done"
             @change="toggleTask(task.id)"
@@ -91,22 +99,6 @@ h1 {
   color: #1b2a4a;
   padding: 16px;
   margin: 0;
-}
-
-.error-banner {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 6px;
-  padding: 10px 14px;
-  margin-bottom: 16px;
-  color: #92400e;
-  font-size: 14px;
-}
-
-.empty-state {
-  color: #718096;
-  font-style: italic;
-  padding: 16px 0;
 }
 
 .task-list {
@@ -144,6 +136,12 @@ ion-fab-button {
   flex-shrink: 0;
   width: 35px;
   height: 35px;
+}
+
+ion-item {
+  --padding-end: 15px;
+  overflow: visible;
+  align-items: center;
 }
 </style>
 

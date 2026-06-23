@@ -1,16 +1,14 @@
 <script setup>
-import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useTaskStore } from "../stores/taskStore.js";
-import { IonPage, IonItem, IonList, IonButton, IonContent, 
-         IonFabButton, IonIcon, IonHeader, IonInput, IonCheckbox, IonFab } from '@ionic/vue';
-import { add, trashOutline } from 'ionicons/icons';
+import { IonPage, IonList, IonContent, 
+         IonFabButton, IonIcon, IonHeader, IonCheckbox } from '@ionic/vue';
+import { trashOutline } from 'ionicons/icons';
 
 const taskStore = useTaskStore();
 const { doneCount, doneTasks } = storeToRefs(taskStore);
-
-const route = useRoute();
+const { removeTask } = taskStore;
 
 const router = useRouter();
 
@@ -22,16 +20,18 @@ const goToDetail = (id) => {
 <template>
   <ion-page>
     <ion-header>
-      <h1>📝 Finished Tasks</h1>
-      <p>
-        Done: {{ doneCount }}
-      </p>
+      <ion-toolbar>
+        <ion-title>Finished Tasks</ion-title>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content>
-      <ion-item v-if="doneTasks.length === 0">
-        There are currently no finished tasks.
-      </ion-item>
+      <ion-chip style="margin: 18px">Done ({{ doneCount }})</ion-chip>
+      <div v-if="doneCount === 0" class="ion-padding ion-text-center">
+        <ion-text color="medium">
+          <p>There are currently no tasks.</p>
+        </ion-text>
+      </div>
 
       <ion-list>
         <div v-for="task in doneTasks" :key="task.id" class="task-item">
@@ -56,36 +56,8 @@ const goToDetail = (id) => {
 </template>
 
 <style scoped>
-h1 {
-  color: #1b2a4a;
-  padding: 16px;
-  margin: 0;
-}
-
-.error-banner {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 6px;
-  padding: 10px 14px;
-  margin-bottom: 16px;
-  color: #92400e;
-  font-size: 14px;
-}
-
-.empty-state {
-  color: #718096;
-  font-style: italic;
-  padding: 16px 0;
-}
-
-.task-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
 .task-item {
-  padding: 12px 16px;
+  padding: 16px 16px;
   background: white;
   border-radius: 8px;
   margin: 20px;
@@ -113,16 +85,5 @@ ion-fab-button {
   flex-shrink: 0;
   width: 35px;
   height: 35px;
-}
-
-ion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 20px;
-}
-
-ion-header p {
-  font-size: 12px;
 }
 </style>
