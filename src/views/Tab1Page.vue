@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useTaskStore } from "../stores/taskStore.js";
 import { IonPage, IonItem, IonList, IonButton, IonContent, 
@@ -13,6 +13,11 @@ const { addTask, toggleTask, removeTask } = taskStore;
 const route = useRoute();
 
 const newTaskName = ref("");
+const router = useRouter();
+
+const goToDetail = (id) => {
+  router.push(`/tabs/tasks/${id}`)
+}
 
 function handleAdd() {
   taskStore.addTask(newTaskName.value);
@@ -28,16 +33,19 @@ const showErrorBanner = computed(() => {
 <template>
   <ion-page>
     <ion-header>
-      <h1>📝 My Tasks</h1>
-      <p>
-        Done: {{ doneCount }} | Pending: {{ pendingCount }} | Total: {{ totalCount }}
-      </p>
+      <ion-toolbar>
+        <ion-title>📝 My Tasks</ion-title>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content>
       <ion-item class="error-banner" v-if="showErrorBanner">
         ⚠️ Task not found. Redirected back to home.
       </ion-item>
+
+      <ion-card style="padding: 10px">
+        Done: {{ doneCount }} | Pending: {{ pendingCount }} | Total: {{ totalCount }}
+      </ion-card>
 
       <ion-item>
         <ion-input
@@ -63,7 +71,10 @@ const showErrorBanner = computed(() => {
             @change="toggleTask(task.id)"
             label-placement="start"
           />
-          <p :class="{ done: task.done }">{{ task.name }}</p>
+          <p :class="{ done: task.done }" 
+          @click="goToDetail(task.id)">
+            {{ task.name }}
+          </p>
           <ion-fab-button color="danger">
             <ion-icon :icon="trashOutline" 
               @click="removeTask(task.id)">
@@ -133,17 +144,6 @@ ion-fab-button {
   flex-shrink: 0;
   width: 35px;
   height: 35px;
-}
-
-ion-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 20px;
-}
-
-ion-header p {
-  font-size: 12px;
 }
 </style>
 
