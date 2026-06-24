@@ -1,9 +1,10 @@
 <script setup>
-import { onErrorCaptured, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
-import { Camera, CameraResultType, CameraSource, MediaTypeSelection } from '@capacitor/camera'
+import { Camera } from '@capacitor/camera'
 import { useTaskStore } from "../stores/taskStore.js";
-import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, onIonViewWillEnter, IonTitle, IonImg } from '@ionic/vue';
+import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, 
+         onIonViewWillEnter, IonTitle, IonImg } from '@ionic/vue';
 import { cameraOutline } from "ionicons/icons";
 
 const route = useRoute();
@@ -42,15 +43,30 @@ async function capturePhoto() {
       </ion-toolbar>
     </ion-header>
 
-    <ion-content>
-      <div v-if="task">
+    <ion-content class="ion-padding">
+      <div v-if="task" class="container">
         <h1>{{ task.name }}</h1>
-        <ion-text>ID: {{ task.id }}</ion-text>
-        <br>
-        <ion-text>
-          Status:
-          {{ task.done ? "Done" : "Not Done" }}
-        </ion-text>
+
+        <div class="row">
+          <div class="container">
+            <ion-text style="font-size: small; color: grey;">Status</ion-text>
+
+            <ion-chip :color="task.done ? 'success' : 'danger'">
+              {{ task.done ? "Done" : "Not Done" }}
+            </ion-chip>
+          </div>
+
+          <div class="container">
+            <ion-text style="font-size: small; color: grey;">Due Date</ion-text>
+            
+            <ion-datetime-button datetime="datetime"></ion-datetime-button> 
+            
+            <ion-modal :keep-contents-mounted="true"> 
+              <ion-datetime id="datetime" presentation="date"></ion-datetime> 
+            </ion-modal>
+          </div>
+        </div>
+
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
           <ion-fab-button color="secondary">
             <ion-icon :icon="cameraOutline" 
@@ -58,6 +74,7 @@ async function capturePhoto() {
             </ion-icon>
           </ion-fab-button>
         </ion-fab>
+
         <ion-img v-if="task.photo" :src="task.photo"></ion-img>
       </div>
     </ion-content>
@@ -70,8 +87,23 @@ ion-button {
   width: 40px; 
   object-fit: cover;
 }
-ion-content div {
-  padding: 30px;
+
+ion-img {
+  margin: 15px
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-evenly; 
 }
 </style>
 

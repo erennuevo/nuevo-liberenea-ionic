@@ -45,9 +45,11 @@ const filteredTasks = computed(() => {
         <ion-chip color="success" @click="filter = 'done'">
           Done ({{ doneCount }})
         </ion-chip>
+
         <ion-chip color="warning" @click="filter = 'pending'">
           Pending ({{ pendingCount }})
         </ion-chip>
+
         <ion-chip color="primary" @click="filter = 'all'">
           Total ({{ totalCount }})
         </ion-chip>
@@ -61,6 +63,7 @@ const filteredTasks = computed(() => {
           placeholder="New task..."
           @keyup.enter="handleAdd"
         />
+
         <ion-fab-button>
           <ion-icon :icon="add" @click="handleAdd"></ion-icon>
         </ion-fab-button>
@@ -78,15 +81,18 @@ const filteredTasks = computed(() => {
           <ion-avatar v-if="task.photo">
             <img :src="task.photo">
           </ion-avatar>
+
           <ion-checkbox
             v-model="task.done"
             @change="toggleTask(task.id)"
             label-placement="start"
           />
+
           <p :class="{ done: task.done }" 
           @click="goToDetail(task.id)">
             {{ task.name }}
           </p>
+
           <ion-fab-button color="danger">
             <ion-icon :icon="trashOutline" 
               @click="removeTask(task.id)">
@@ -104,13 +110,11 @@ h1 {
   padding: 16px;
   margin: 0;
 }
-
 .task-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .task-item {
   padding: 12px 16px;
   background: white;
@@ -125,31 +129,25 @@ h1 {
     box-shadow 0.2s;
   justify-content: space-between;
 }
-
 .task-item:hover {
   border-color: #73c8ed;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
-
 .task-item .done {
   text-decoration: line-through;
   color: #9ca3af;
 }
-
 ion-fab-button {
   flex-shrink: 0;
   width: 35px;
   height: 35px;
 }
-
 ion-item {
   --padding-end: 15px;
   overflow: visible;
   align-items: center;
 }
-
 ion-avatar {
   --border-radius: 4px;
 }
 </style>
-
