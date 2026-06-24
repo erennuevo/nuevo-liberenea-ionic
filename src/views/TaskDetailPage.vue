@@ -1,17 +1,33 @@
 <script setup>
-import { ref } from "vue";
+import { onErrorCaptured, ref } from "vue";
 import { useRoute } from "vue-router";
+import { Camera, CameraResultType, CameraSource, MediaTypeSelection } from '@capacitor/camera'
 import { useTaskStore } from "../stores/taskStore.js";
-import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, onIonViewWillEnter, IonTitle } from '@ionic/vue';
+import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, onIonViewWillEnter, IonTitle, IonImg } from '@ionic/vue';
+import { cameraOutline } from "ionicons/icons";
 
 const route = useRoute();
 const taskStore = useTaskStore();
+const { addPhotoToTask } = taskStore;
 
 const task = ref(null)
 
 onIonViewWillEnter(() => {
   task.value = taskStore.tasks.find((t) => t.id === Number(route.params.id));
 });
+
+async function capturePhoto() {
+  try {
+    const photo = await Camera.takePhoto({
+      includeMetadata: true,
+      quality: 90
+    });
+    addPhotoToTask(task.value.id, photo.webPath);
+  } catch (e) {
+    const error = e;
+    console.error(error)
+  }
+}
 
 </script>
 
@@ -29,11 +45,20 @@ onIonViewWillEnter(() => {
     <ion-content>
       <div v-if="task">
         <h1>{{ task.name }}</h1>
-        <p>ID: {{ task.id }}</p>
-        <p>
-        Status:
-        {{ task.done ? "Done" : "Not Done" }}
-        </p>
+        <ion-text>ID: {{ task.id }}</ion-text>
+        <br>
+        <ion-text>
+          Status:
+          {{ task.done ? "Done" : "Not Done" }}
+        </ion-text>
+        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+          <ion-fab-button color="secondary">
+            <ion-icon :icon="cameraOutline" 
+              @click="capturePhoto">
+            </ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+        <ion-img v-if="task.photo" :src="task.photo"></ion-img>
       </div>
     </ion-content>
   </ion-page>
@@ -43,6 +68,7 @@ onIonViewWillEnter(() => {
 ion-button {
   height: 40px;
   width: 40px; 
+  object-fit: cover;
 }
 ion-content div {
   padding: 30px;

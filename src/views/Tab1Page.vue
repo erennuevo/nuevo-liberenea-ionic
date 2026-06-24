@@ -5,7 +5,7 @@ import { storeToRefs } from "pinia";
 import { useTaskStore } from "../stores/taskStore.js";
 import { IonPage, IonItem, IonList, IonContent, IonChip, IonText,
          IonFabButton, IonIcon, IonHeader, IonInput, IonCheckbox,
-         IonToolbar, IonTitle } from '@ionic/vue';
+         IonToolbar, IonTitle, IonAvatar } from '@ionic/vue';
 import { add, trashOutline } from 'ionicons/icons';
 
 const router = useRouter();
@@ -74,6 +74,10 @@ const filteredTasks = computed(() => {
 
       <ion-list>
         <div v-for="task in filteredTasks" :key="task.id" class="task-item">
+          
+          <ion-avatar v-if="task.photo">
+            <img :src="task.photo">
+          </ion-avatar>
           <ion-checkbox
             v-model="task.done"
             @change="toggleTask(task.id)"
@@ -142,6 +146,10 @@ ion-item {
   --padding-end: 15px;
   overflow: visible;
   align-items: center;
+}
+
+ion-avatar {
+  --border-radius: 4px;
 }
 </style>
 
