@@ -1,0 +1,109 @@
+<script setup>
+import { ref } from "vue";
+import { useRoute } from "vue-router";
+import { Camera } from '@capacitor/camera'
+import { useTaskStore } from "../stores/taskStore.js";
+import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, 
+         onIonViewWillEnter, IonTitle, IonImg } from '@ionic/vue';
+import { cameraOutline } from "ionicons/icons";
+
+const route = useRoute();
+const taskStore = useTaskStore();
+const { addPhotoToTask } = taskStore;
+
+const task = ref(null)
+
+onIonViewWillEnter(() => {
+  task.value = taskStore.tasks.find((t) => t.id === Number(route.params.id));
+});
+
+async function capturePhoto() {
+  try {
+    const photo = await Camera.takePhoto({
+      includeMetadata: true,
+      quality: 90
+    });
+    addPhotoToTask(task.value.id, photo.webPath);
+  } catch (e) {
+    const error = e;
+    console.error(error)
+  }
+}
+
+</script>
+
+<template>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Details</ion-title>
+        <ion-buttons slot="start">
+        <ion-back-button default-href="/tabs/tasks"></ion-back-button>
+      </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div v-if="task" class="container">
+        <h1>{{ task.name }}</h1>
+
+        <div class="row">
+          <div class="container">
+            <ion-text style="font-size: small; color: grey;">Status</ion-text>
+
+            <ion-chip :color="task.done ? 'success' : 'danger'">
+              {{ task.done ? "Done" : "Not Done" }}
+            </ion-chip>
+          </div>
+
+          <div class="container">
+            <ion-text style="font-size: small; color: grey;">Due Date</ion-text>
+            
+            <ion-datetime-button datetime="datetime"></ion-datetime-button> 
+            
+            <ion-modal :keep-contents-mounted="true"> 
+              <ion-datetime id="datetime" presentation="date"></ion-datetime> 
+            </ion-modal>
+          </div>
+        </div>
+
+        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+          <ion-fab-button color="secondary">
+            <ion-icon :icon="cameraOutline" 
+              @click="capturePhoto">
+            </ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+
+        <ion-img v-if="task.photo" :src="task.photo"></ion-img>
+      </div>
+    </ion-content>
+  </ion-page>
+</template>
+
+<style scoped>
+ion-button {
+  height: 40px;
+  width: 40px; 
+  object-fit: cover;
+}
+
+ion-img {
+  margin: 15px
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-evenly; 
+}
+</style>
+

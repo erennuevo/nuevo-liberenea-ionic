@@ -12,6 +12,9 @@ export const useTaskStore = defineStore("tasks", () => {
   const pendingCount = computed(
     () => tasks.value.filter((task) => task.done === false).length,
   );
+  const doneTasks = computed(
+    () => tasks.value.filter((task) => task.done === true),
+  );
 
   function addTask(newTask) {
     tasks.value.push({
@@ -30,14 +33,23 @@ export const useTaskStore = defineStore("tasks", () => {
   function removeTask(id) {
     tasks.value = tasks.value.filter((task) => task.id !== id);
   }
+  
+  function addPhotoToTask(taskId, photoPath) {
+    const task = tasks.value.find(t => t.id === taskId)
+    if (task) {
+      task.photo = photoPath
+    }
+  }
 
   return {
     tasks,
     totalCount,
     doneCount,
     pendingCount,
+    doneTasks,
     addTask,
     toggleTask,
     removeTask,
-  };
+    addPhotoToTask
+  }
 });
