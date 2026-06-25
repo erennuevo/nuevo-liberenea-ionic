@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useTaskStore } from "../stores/taskStore.js";
@@ -30,6 +30,7 @@ const filteredTasks = computed(() => {
   if (filter.value === 'pending') return tasks.value.filter(t => !t.done);
   return tasks.value;
 });
+
 </script>
 
 <template>
@@ -83,13 +84,13 @@ const filteredTasks = computed(() => {
           </ion-avatar>
 
           <ion-checkbox
-            v-model="task.done"
-            @change="toggleTask(task.id)"
+            :checked="task.done"
+            @ionChange="toggleTask(task.id)"
             label-placement="start"
           />
 
           <p :class="{ done: task.done }" 
-          @click="goToDetail(task.id)">
+            @click="goToDetail(task.id)">
             {{ task.name }}
           </p>
 
