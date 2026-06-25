@@ -1,21 +1,25 @@
 <script setup>
-import { ref } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { Camera } from '@capacitor/camera'
 import { useTaskStore } from "../stores/taskStore.js";
-import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, 
-         onIonViewWillEnter, IonTitle, IonImg } from '@ionic/vue';
+import { IonPage, IonButtons, IonContent, IonHeader, IonBackButton, IonIcon, IonModal,
+         IonChip, IonText, IonToolbar,
+         IonTitle, IonImg, IonFab, IonFabButton, IonDatetime, IonDatetimeButton } from '@ionic/vue';
 import { cameraOutline } from "ionicons/icons";
 
 const route = useRoute();
 const taskStore = useTaskStore();
-const { addPhotoToTask } = taskStore;
+const { addPhotoToTask, setDueDate } = taskStore;
 
-const task = ref(null)
+const task = computed(() =>
+  taskStore.tasks.find((t) => t.id === Number(route.params.id))
+);
 
-onIonViewWillEnter(() => {
-  task.value = taskStore.tasks.find((t) => t.id === Number(route.params.id));
-});
+function handleUpdate(event, taskId) {
+  const selectedDate = event.detail.value;
+  taskStore.setDueDate(taskId, selectedDate);
+}
 
 async function capturePhoto() {
   try {
@@ -47,25 +51,29 @@ async function capturePhoto() {
       <div v-if="task" class="container">
         <h1>{{ task.name }}</h1>
 
-        <div class="row">
-          <div class="container">
+        <ion-list lines="none">
+          <ion-item>
             <ion-text style="font-size: small; color: grey;">Status</ion-text>
-
-            <ion-chip :color="task.done ? 'success' : 'danger'">
+            <ion-chip :color="task.done ? 'success' : 'danger'" style="margin: 5px 20px">
               {{ task.done ? "Done" : "Not Done" }}
             </ion-chip>
-          </div>
+          </ion-item>
 
-          <div class="container">
+          <ion-item>
             <ion-text style="font-size: small; color: grey;">Due Date</ion-text>
             
-            <ion-datetime-button datetime="datetime"></ion-datetime-button> 
+            <ion-datetime-button datetime="datetime" style="margin: 5px;"></ion-datetime-button> 
             
             <ion-modal :keep-contents-mounted="true"> 
-              <ion-datetime id="datetime" presentation="date"></ion-datetime> 
+              <ion-datetime 
+                id="datetime" 
+                presentation="date"
+                :value="task.dueDate"
+                @ionChange="handleUpdate($event, task.id)">
+              </ion-datetime> 
             </ion-modal>
-          </div>
-        </div>
+          </ion-item>
+        </ion-list>
 
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
           <ion-fab-button color="secondary">
@@ -105,5 +113,17 @@ ion-img {
   align-items: center;
   justify-content: space-evenly; 
 }
-</style>
 
+ion-select {
+  /* Reduce the height */
+  --min-height: 32px; 
+  /* Reduce internal padding */
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  
+  /* Shrink the font size to match smaller stature */
+  font-size: 0.85rem;
+}
+</style>
